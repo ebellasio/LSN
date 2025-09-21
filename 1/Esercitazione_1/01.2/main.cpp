@@ -28,9 +28,9 @@ int dice( Random &rnd ){
 int main (int argc, char *argv[]){
 
    Random rnd;
-   
-   ////////////////////////////////////////////////////////////////////////////per avere un numeo casuale fino a QUI
-   int seed[4];                                                                  
+
+   /////////////////////////////////////////////////////////////per avere un numero casuale fino a QUI
+   int seed[4];
    int p1, p2;
    ifstream Primes("Primes");
    if (Primes.is_open()){
