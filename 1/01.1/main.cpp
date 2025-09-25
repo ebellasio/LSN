@@ -27,7 +27,7 @@ int main (int argc, char *argv[]){
 
     Random rnd;
 
-    ////////////////////////////////////////carico i file per il seme e i primi
+    // Inizializzazione del generatore di numeri casuali: leggo i semi e i numeri primi dai rispettivi file
     int seed[4];
     int p1, p2;
     ifstream Primes("Primes");

@@ -85,18 +85,18 @@ void Random :: SetRandom(int * s, int p1, int p2){
   return;
 }
 
+// funzione che genera un numero casuale da una distribuzione esponenziale con parametro lambda dato
 double Random :: Exponential(double lambda){
-   // This function generates a random number from an exponential distribution with given lambda
-   double s=Rannyu();
-   return -log(1.-s)/lambda;
+    double s = Rannyu();
+    return -log(1.-s)/lambda;
 }
 
 const double Pi = 2 * asin(1);
 
+// funzione che genera un numero casuale da una distribuzione di Cauchy-Lorentz con parametri mu e gamma dati
 double Random :: CauchyLorentz(double mu, double gamma){
-   // This function generates a random number from a Cauchy-Lorentz distribution with given mu and gamma
-   double s=Rannyu();
-   return gamma*tan(Pi*(s-0.5))+mu;
+    double s = Rannyu();
+    return gamma*tan(Pi*(s-0.5)) + mu;
 }
 
 
