@@ -27,7 +27,7 @@ double error( double av, double av2, int n ){
 // funzione per calcolare pi greco per assumere di non conoscerlo a priori
 // considero un quadrato di lato 2 [-1,1] e la circonferenza inscritta
 // il rapporto tra i punti che cadono all'interno della circonferenza e il totale
-// dei punti nella circonferenza tende a pi/4 per un numero di punti che tende a infinito
+// dei punti nel cerchio tende a pi/4 per un numero di punti che tende a infinito
 double pi_greco( Random &rnd, int N_th ){
     //rnd: Generatore di N casuali
     //N_th: Numero di lanci
