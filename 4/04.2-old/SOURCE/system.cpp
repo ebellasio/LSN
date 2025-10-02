@@ -329,22 +329,24 @@ void System ::initialize_velocities()
         sumv.zeros();
 
         // Inizializzo le velocità con una distribuzione deltiforme
-        double const v_i = 1.05;
+        // Impongo che ogni particella abbia una velocità di + o - v_t
+        // Perchè voglio partire da una configurazione con entropia molto bassa
+        double const v_t = 1.05;
 
         for (int i = 0; i < _npart; i++)
         {
             if (i % 6 == 0)
-                vx(i) = v_i;
+                vx(i) = v_t;
             else if (i % 6 == 1)
-                vx(i) = -v_i;
+                vx(i) = -v_t;
             else if (i % 6 == 2)
-                vy(i) = v_i;
+                vy(i) = v_t;
             else if (i % 6 == 3)
-                vy(i) = -v_i;
+                vy(i) = -v_t;
             else if (i % 6 == 4)
-                vz(i) = v_i;
+                vz(i) = v_t;
             else if (i % 6 == 5)
-                vz(i) = -v_i;
+                vz(i) = -v_t;
 
             sumv(0) += vx(i);
             sumv(1) += vy(i);
@@ -658,9 +660,12 @@ void System ::read_configuration()
         for (int i = 0; i < _npart; i++)
         {
             cinf >> particle >> x >> y >> z; // units of coordinates in conf.xyz is _side
-            _particle(i).setposition(0, this->pbc(_side(0) * x, 0));
-            _particle(i).setposition(1, this->pbc(_side(1) * y, 1));
-            _particle(i).setposition(2, this->pbc(_side(2) * z, 2));
+            // Divido le posizioni iniziali per due perchè voglio che tutte le particelle partano da un box con lato _side/2
+            // Prendo le posizioni iniziali di un reticolo fcc
+            // Voglio partire da una configurazione con entropia molto bassa
+            _particle(i).setposition(0, this->pbc(_side(0) * x / 2, 0));
+            _particle(i).setposition(1, this->pbc(_side(1) * y / 2, 1));
+            _particle(i).setposition(2, this->pbc(_side(2) * z / 2, 2));
             _particle(i).acceptmove(); // _x_old = _x_new
         }
     }

@@ -8,30 +8,39 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 *****************************************************************
 *****************************************************************/
 
-#ifndef __Random__
-#define __Random__
+#include <iostream>
+#include "system.h"
 
-class Random {
+using namespace std;
 
-private:
-  int m1,m2,m3,m4,l1,l2,l3,l4,n1,n2,n3,n4;
+int main(int argc, char *argv[])
+{
 
-protected:
+    int nconf = 1;
+    System SYS;
+    SYS.initialize();
+    SYS.initialize_properties();
+    SYS.block_reset(0);
 
-public:
-  // constructors
-  Random();
-  // destructor
-  ~Random();
-  // methods
-  void SetRandom(int * , int, int);
-  void SaveSeed();
-  double Rannyu(void);
-  double Rannyu(double min, double max);
-  double Gauss(double mean, double sigma);
-};
+    for (int i = 0; i < SYS.get_nbl(); i++)
+    { // loop over blocks
+        for (int j = 0; j < SYS.get_nsteps(); j++)
+        { // loop over steps in a block
+            SYS.step();
+            SYS.measure();
+            if (j % 50 == 0)
+            {
+                //        SYS.write_XYZ(nconf); //Write actual configuration in XYZ format //Commented to avoid "filesystem full"!
+                nconf++;
+            }
+        }
+        SYS.averages(i + 1);
+        SYS.block_reset(i + 1);
+    }
+    SYS.finalize();
 
-#endif // __Random__
+    return 0;
+}
 
 /****************************************************************
 *****************************************************************

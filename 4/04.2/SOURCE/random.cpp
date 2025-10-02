@@ -20,8 +20,7 @@ Random ::Random() {}
 
 Random ::~Random() {}
 
-void Random ::SaveSeed()
-{
+void Random ::SaveSeed(){
     ofstream WriteSeed;
     WriteSeed.open("../OUTPUT/seed.out");
     if (WriteSeed.is_open())
@@ -35,21 +34,18 @@ void Random ::SaveSeed()
     return;
 }
 
-double Random ::Gauss(double mean, double sigma)
-{
+double Random ::Gauss(double mean, double sigma){
     double s = Rannyu();
     double t = Rannyu();
     double x = sqrt(-2. * log(1. - s)) * cos(2. * M_PI * t);
     return mean + x * sigma;
 }
 
-double Random ::Rannyu(double min, double max)
-{
+double Random ::Rannyu(double min, double max){
     return min + (max - min) * Rannyu();
 }
 
-double Random ::Rannyu(void)
-{
+double Random ::Rannyu(void){
     const double twom12 = 0.000244140625;
     int i1, i2, i3, i4;
     double r;
@@ -69,8 +65,7 @@ double Random ::Rannyu(void)
     return r;
 }
 
-void Random ::SetRandom(int *s, int p1, int p2)
-{
+void Random ::SetRandom(int *s, int p1, int p2){
     m1 = 502;
     m2 = 1521;
     m3 = 4071;
