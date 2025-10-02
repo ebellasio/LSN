@@ -312,9 +312,9 @@ void System ::initialize_velocities() {
         // Quindi scalo le velocità in modo che siano compatibili con la temperatura
         // (deve essere: v = sqrt(3T) )
         for (int i = 0; i < _npart; i++) {
-            _particle(i).setvelocity(0, vx(i) * scalef);
-            _particle(i).setvelocity(1, vy(i) * scalef);
-            _particle(i).setvelocity(2, vz(i) * scalef);
+            _particle(i).setvelocity(0, +vx(i) * scalef);
+            _particle(i).setvelocity(1, +vy(i) * scalef);
+            _particle(i).setvelocity(2, +vz(i) * scalef);
         }
         // A partire dalle velocità calcolo le posizioni al tempo t - dt
         for (int i = 0; i < _npart; i++) {
@@ -470,7 +470,7 @@ void System ::initialize_properties(){ // Initialize data members used for measu
         cerr << "PROBLEM: Unable to open properties.dat" << endl;
 
     //stamo a video il numero e il nome delle proprietà attivate dal sistema
-    cout << "Number of properties to be measured: " << _nprop << endl;
+    //cout << "Number of properties to be measured: " << _nprop << endl;
     cout << "List of properties to be measured:" 
             << (_measure_penergy ? " POTENTIAL_ENERGY" : "")
             << (_measure_kenergy ? " KINETIC_ENERGY" : "")
@@ -587,9 +587,12 @@ void System ::read_configuration() {
         cinf >> comment;
         for (int i = 0; i < _npart; i++) {
             cinf >> particle >> x >> y >> z; // units of coordinates in conf.xyz is _side
-            _particle(i).setposition(0, this->pbc(_side(0) * x, 0));
-            _particle(i).setposition(1, this->pbc(_side(1) * y, 1));
-            _particle(i).setposition(2, this->pbc(_side(2) * z, 2));
+            // Divido le posizioni iniziali per due perchè voglio che tutte le particelle partano da un box con lato _side/2
+            // Prendo le posizioni iniziali di un reticolo fcc
+            // Voglio partire da una configurazione con entropia molto bassa
+            _particle(i).setposition(0, this->pbc(_side(0) * x/2, 0));
+            _particle(i).setposition(1, this->pbc(_side(1) * y/2, 1));
+            _particle(i).setposition(2, this->pbc(_side(2) * z/2, 2));
             _particle(i).acceptmove(); // _x_old = _x_new
         }
     }
@@ -619,8 +622,7 @@ void System ::block_reset(int blk){ // Reset block accumulators to zero
     return;
 }
 
-void System ::measure()
-{ // Measure properties
+void System ::measure() { // Measure properties
     _measurement.zeros();
     // POTENTIAL ENERGY, VIRIAL, GOFR ///////////////////////////////////////////
     int bin;
@@ -651,20 +653,20 @@ void System ::measure()
     }
     // POFV -> modificato in esercizio 4
     //Calcolo la distribuzione di velocita' delle particelle
-    if (_measure_pofv){
-        double v2 = 0.0;
-        for (int i = 0; i < _npart; i++){
-            v2 = sqrt(dot(_particle(i).getvelocity(), _particle(i).getvelocity()));  // calcolo il modulo quandro della velocità della particella i-esima
+    if (_measure_pofv) {
+        int bin = 0;
+        for (int i = 0; i < _npart; i++) {
+            pofv_temp = sqrt(dot(_particle(i).getvelocity(), _particle(i).getvelocity()));
             bin = int(floor(pofv_temp / _bin_size_v)); // bin = velocità / bin_size
             if (bin < _n_bins_v) {
                 _measurement(_index_pofv + bin) += 1.0; // valore finale in _measurement con indice corretto, _measurement contiene i valori istentanei che poi vanno nell'accumulatore _block_av che fa le medie di blocco
             }
-            else{
+            else {
                 _measurement(_index_pofv + _n_bins_v - 1) += 1.0; // se la velocità è maggiore della velocità massima, la metto nell'ultimo bin
             }
         }
         for (int i = 0; i < _n_bins_v; i++)
-            _measurement(_index_pofv + i) /= double(_npart)* _bin_size_v;   //normalizzo la distribuzione delle velocità
+            _measurement(_index_pofv + i) /= double(_npart); //* _bin_size_v);
     }
     // POTENTIAL ENERGY //////////////////////////////////////////////////////////
     if (_measure_penergy){
