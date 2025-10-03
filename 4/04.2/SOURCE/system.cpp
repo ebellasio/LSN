@@ -654,19 +654,14 @@ void System ::measure() { // Measure properties
     // POFV -> modificato in esercizio 4
     //Calcolo la distribuzione di velocita' delle particelle
     if (_measure_pofv) {
-        int bin = 0;
+        int bin;
         for (int i = 0; i < _npart; i++) {
             pofv_temp = sqrt(dot(_particle(i).getvelocity(), _particle(i).getvelocity()));
-            bin = int(floor(pofv_temp / _bin_size_v)); // bin = velocità / bin_size
-            if (bin < _n_bins_v) {
-                _measurement(_index_pofv + bin) += 1.0; // valore finale in _measurement con indice corretto, _measurement contiene i valori istentanei che poi vanno nell'accumulatore _block_av che fa le medie di blocco
-            }
-            else {
-                _measurement(_index_pofv + _n_bins_v - 1) += 1.0; // se la velocità è maggiore della velocità massima, la metto nell'ultimo bin
-            }
+            bin = min(int(floor(pofv_temp / vmax * double(_n_bins_v) )), _n_bins_v - 1); // bin = velocità / bin_size
+            _measurement(_index_pofv + bin) += 1.0; // valore finale in _measurement con indice corretto, _measurement contiene i valori istentanei che poi vanno nell'accumulatore _block_av che fa le medie di blocco
         }
-        for (int i = 0; i < _n_bins_v; i++)
-            _measurement(_index_pofv + i) /= double(_npart); //* _bin_size_v);
+        /*for (int i = 0; i < _n_bins_v; i++)
+            _measurement(_index_pofv + i) /= double(_npart); //* _bin_size_v); */
     }
     // POTENTIAL ENERGY //////////////////////////////////////////////////////////
     if (_measure_penergy){
