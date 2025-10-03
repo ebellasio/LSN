@@ -281,15 +281,19 @@ void System ::initialize_velocities() {
         sumv.zeros();
 
         //Per esercizion 4: modifico la distribuzione delle velocità in modo che sia una delta 
-        double const v_i = 2.4;         // velocità iniziale probabile compatibile con le condizioni al contorno T_star=2.0
+        double const v_i = sqrt(3.0 *_temp);         // velocità iniziale probabile compatibile con le condizioni al contorno T_star=2.0
 
         for (int i = 0; i < _npart; i++) {
-            if (i % 6 == 0) vx(i) = v_i;
+            /*if (i % 6 == 0) vx(i) = v_i;
             else if (i % 6 == 1) vx(i) = -v_i;
             else if (i % 6 == 2) vy(i) = v_i;
             else if (i % 6 == 3) vy(i) = -v_i;
             else if (i % 6 == 4) vz(i) = v_i;
-            else if (i % 6 == 5) vz(i) = -v_i;
+            else if (i % 6 == 5) vz(i) = -v_i;*/
+
+            vx(i)=_rnd.Gauss(0,sqrt(_temp));
+            vy(i)=_rnd.Gauss(0,sqrt(_temp));
+            vz(i)=_rnd.Gauss(0,sqrt(_temp));
 
             sumv(0) += vx(i);
             sumv(1) += vy(i);
