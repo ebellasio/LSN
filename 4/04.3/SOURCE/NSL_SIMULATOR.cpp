@@ -34,6 +34,7 @@ int main (int argc, char *argv[]){
         SYS.block_reset(i+1);
     }
     SYS.finalize();
+
     return 0;
 }
 
