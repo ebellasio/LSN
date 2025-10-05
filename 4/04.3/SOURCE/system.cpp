@@ -590,9 +590,9 @@ void System ::read_configuration() {
             // Divido le posizioni iniziali per due perchè voglio che tutte le particelle partano da un box con lato _side/2
             // Prendo le posizioni iniziali di un reticolo fcc
             // Voglio partire da una configurazione con entropia molto bassa
-            _particle(i).setposition(0, this->pbc(_side(0) * x/2, 0));
-            _particle(i).setposition(1, this->pbc(_side(1) * y/2, 1));
-            _particle(i).setposition(2, this->pbc(_side(2) * z/2, 2));
+            _particle(i).setposition(0, this->pbc(_side(0) * x, 0));
+            _particle(i).setposition(1, this->pbc(_side(1) * y, 1));
+            _particle(i).setposition(2, this->pbc(_side(2) * z, 2));
             _particle(i).acceptmove(); // _x_old = _x_new
         }
     }
