@@ -17,3 +17,6 @@ clean :
 remove:
 	rm ../OUTPUT/*.*
 	rm ../OUTPUT/CONFIG/*.*
+totalremove:
+	rm -rf ../OUTPUT_FINALI/*
+	rm -rf ../OUTPUT_FINALI_4/*
