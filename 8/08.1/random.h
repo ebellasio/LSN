@@ -11,6 +11,7 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 #ifndef __Random__
 #define __Random__
 
+// This class contains functions for generating random numbers using the RANNYU algorithm
 class Random {
 
 private:
@@ -19,15 +20,19 @@ private:
 protected:
 
 public:
-  // constructors
+  // Default constructor
   Random();
-  // destructor
+  // Destructor
   ~Random();
-  // methods
+  // Method to set the seed for the RNG
   void SetRandom(int * , int, int);
+  // Method to save the seed to a file
   void SaveSeed();
+  // Method to generate a random number in the range [0,1)
   double Rannyu(void);
+  // Method to generate a random number in the range [min,max)
   double Rannyu(double min, double max);
+  // Method to generate a random number with a Gaussian distribution
   double Gauss(double mean, double sigma);
 };
 

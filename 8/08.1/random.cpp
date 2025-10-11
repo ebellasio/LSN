@@ -17,20 +17,24 @@ _/    _/  _/_/_/  _/_/_/_/ email: Davide.Galli@unimi.it
 using namespace std;
 
 Random :: Random(){}
+// Default constructor, does not perform any action
 
 Random :: ~Random(){}
+// Default destructor, does not perform any action
 
 void Random :: SaveSeed(){
+   // This function saves the current state of the random number generator to a file "seed.out"
    ofstream WriteSeed;
-   WriteSeed.open("../OUTPUT/seed.out");
+   WriteSeed.open("seed.out");
    if (WriteSeed.is_open()){
-      WriteSeed << l1 << " " << l2 << " " << l3 << " " << l4 << endl;;
+      WriteSeed << "RANDOMSEED	" << l1 << " " << l2 << " " << l3 << " " << l4 << endl;;
    } else cerr << "PROBLEM: Unable to open random.out" << endl;
   WriteSeed.close();
   return;
 }
 
 double Random :: Gauss(double mean, double sigma) {
+   // This function generates a random number from a Gaussian distribution with given mean and sigma
    double s=Rannyu();
    double t=Rannyu();
    double x=sqrt(-2.*log(1.-s))*cos(2.*M_PI*t);
@@ -38,10 +42,12 @@ double Random :: Gauss(double mean, double sigma) {
 }
 
 double Random :: Rannyu(double min, double max){
+   // This function generates a random number in the range [min, max)
    return min+(max-min)*Rannyu();
 }
 
 double Random :: Rannyu(void){
+  // This function generates a random number in the range [0,1)
   const double twom12=0.000244140625;
   int i1,i2,i3,i4;
   double r;
@@ -62,6 +68,7 @@ double Random :: Rannyu(void){
 }
 
 void Random :: SetRandom(int * s, int p1, int p2){
+  // This function sets the seed and parameters of the random number generator
   m1 = 502;
   m2 = 1521;
   m3 = 4071;
