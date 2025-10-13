@@ -45,13 +45,23 @@ bool Metropolis_param ( double H_new, double H_old, double beta, Random &rnd ){
 }
 
 //funzione che calcola la media e l'errore dell'energia
-H_avg_err H_avg ( Parametri p, Random &rnd){
+//aggiungo il parametro print per decidere se stampare o no i valori di Energia e x campionati
+//mi serve per stampare il valore di energia associato ai parametri ottimali alla fine del simulated annealing
+H_avg_err H_avg ( Parametri p, Random &rnd, bool print){
     double sum = 0.0;
     double sum2 = 0.0;
 
     double x_new, x_old = 0.0;
     double delta = 0.5; 
     deltaTune (delta, rnd, p);
+
+    static ofstream outGS("output_energy.dat"); //static serve per non reinizializzare il file di output ad ogni chiamata della funzione
+    //static ofstream outx("sampled_x.dat");
+
+    //inizializzo il file di output
+    if(print){
+        outGS << "#BLOCK:" << " " << "ENERGY:" << " " << "ERROR:" << endl;
+    }
 
     for (int i=0; i<N; i++){
         double H_sum = 0.0;
@@ -70,12 +80,17 @@ H_avg_err H_avg ( Parametri p, Random &rnd){
             if ( Metropolis_x(x_new, x_old, p, rnd) ) {
                 x_old = x_new; //accetto la nuova posizione
                 H_sum += H(x_new, p); //energia della nuova posizione
+                //if (print) outx << x_new << endl; //stampo il valore di x campionato
             } else{
                 H_sum += H(x_old, p); //energia della vecchia posizione
+                //if (print) outx << x_old << endl; //stampo il valore di x campionato
             }            
         }
         sum += H_sum / double(L);
         sum2 += (H_sum / double(L)) * (H_sum / double(L));   
+
+        //stampo il valore di energia e il suo errore ad ogni blocco
+        if(print) outGS << i+1 << " " << sum/double(i+1) << " " << error(sum/double(i+1), sum2/double(i+1), i) << endl;
     }
 
     sum /= double(N); //media su tutti i blocchi
@@ -117,16 +132,16 @@ void deltaTune ( double &delta, Random &rnd, Parametri p){
 Parametri simulatedAnnealing ( double temp, Parametri p_old, Random &rnd ){
 
     double beta = 1.0 / temp; // Inizializza i parametri
-    double delta_par = 0.4; // Passo per i parametri
+    double delta_par = 0.5*temp; // Passo per i parametri
     Parametri p_new = p_old; // Copia i parametri vecchi in quelli nuovi
 
     p_new.mu = fabs(p_old.mu + delta_par * (2.0 * rnd.Rannyu() - 1.0)); // Aggiorna mu
     do{
         p_new.sigma = fabs(p_old.sigma + delta_par * (2.0 * rnd.Rannyu() - 1.0)); // Aggiorna sigma
-    } while (p_new.sigma <= 0.2);
+    } while (p_new.sigma <= 0.2); // Evita sigma troppo piccola che darebbe un campionamento inefficiente
 
-    H_avg_err H_old = H_avg(p_old, rnd); // Calcola l'energia media con i parametri vecchi
-    H_avg_err H_new = H_avg(p_new, rnd); // Calcola l'energia media con i parametri nuovi
+    H_avg_err H_old = H_avg(p_old, rnd, false); // Calcola l'energia media con i parametri vecchi
+    H_avg_err H_new = H_avg(p_new, rnd, false); // Calcola l'energia media con i parametri nuovi
 
     if ( Metropolis_param(H_new.H_avg, H_old.H_avg, beta, rnd) ) {
         return p_new; // Accetta i nuovi parametri

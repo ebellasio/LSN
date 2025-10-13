@@ -39,23 +39,30 @@ int main (){
         input.close();
     } else cerr << "PROBLEM: Unable to open seed.in" << endl;
     //////////////////////////////////////////////////////////////////////////////
+
     double temp = 2.0; //temperatura iniziale
     Parametri p = {1.0, 0.5}; //parametri iniziali della funzione d'onda
-    int n_steps = 800; //numero di step di simulated annealing
+    int n_steps = 600; //numero di step di simulated annealing
     double coeff_temp = 0.99; //coefficiente di raffreddamento
 
     ofstream out("output.dat");
 
     //Intertazione file di output
-    out << "#STEP temp mu sigma <H> err" << endl;
+    out << "#STEP: TEMPERATURA: MU: SIGMA: <H>: ERRORE:" << endl;
 
     //800 iterazioni di simulated annealing
     for ( int i = 0; i < n_steps; i++){
         p = simulatedAnnealing(temp, p, rnd);
         temp *= coeff_temp;
         //stampo su file i risultati di ogni step
-        out << i << " " << temp << " " << p.mu << " " << p.sigma << " " << H_avg(p, rnd).H_avg << " " << H_avg(p, rnd).H_err << endl;
+        out << i << " " << temp << " " << p.mu << " " << p.sigma << " " << H_avg(p, rnd, false).H_avg << " " << H_avg(p, rnd, false).H_err << endl;
+        //Stampo i parametri finali a schermo
+        if ( i == n_steps-1 ) cout << "Valori finali: mu = " << p.mu << ", sigma = " << p.sigma << endl;
     }
+
+    H_avg (p, rnd, true); //stampo il valore di energia in funzione dei blocchi associato ai parametri ottimali
+
+
 
     out.close();
 

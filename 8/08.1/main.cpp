@@ -39,25 +39,11 @@ int main (){
         input.close();
     } else cerr << "PROBLEM: Unable to open seed.in" << endl;
     //////////////////////////////////////////////////////////////////////////////
-    double temp = 2.0; //temperatura iniziale
-    Parametri p = {1.0, 0.5}; //parametri iniziali della funzione d'onda
-    int n_steps = 800; //numero di step di simulated annealing
-    double coeff_temp = 0.99; //coefficiente di raffreddamento
 
-    ofstream out("output.dat");
+    Parametri p = {1.0, 0.5}; //parametri a scelta
 
-    //Intertazione file di output
-    out << "#STEP temp mu sigma <H> err" << endl;
-
-    //800 iterazioni di simulated annealing
-    for ( int i = 0; i < n_steps; i++){
-        p = simulatedAnnealing(temp, p, rnd);
-        temp *= coeff_temp;
-        //stampo su file i risultati di ogni step
-        out << i << " " << temp << " " << p.mu << " " << p.sigma << " " << H_avg(p, rnd).H_avg << " " << H_avg(p, rnd).H_err << endl;
-    }
-
-    out.close();
+    //stampo il valore di energia in funzione dei blocchi associato a parametri a scelta
+    H_avg (p, rnd, true); 
 
     rnd.SaveSeed();   //salvo il seme che serve per reiprendere la stessa sequenza in caso di errori
     return 0;
