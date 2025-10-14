@@ -22,7 +22,8 @@ class Cromosoma {
         ~Cromosoma (); //distruttore
         bool check_passed (); //controlla se il cromosoma è composto da geni diversi e se la prima città visitata è la 1
         void fitness (); //calcola la distanza tra le città che compaiono nel cromosoma
-        void Set_distances(mat dist) {this->_D = dist}; //setta le distanze tra le città
+        void Set_distances(mat dist) {this->_D = dist;}; //setta le distanze tra le città
+
         void print_cromosoma (ofstream &out); //stampa il cromosoma
         void print_fitness (ofstream &out); //stampa la fitness
 
@@ -46,6 +47,6 @@ class Popolazione {
 
     public:
         Popolazione(int n, int m, double p_m, double p_c, mat D, Random &rnd);
-        void print_popolazione ();
-        double get_distance ( vec cromosoma, char geometry );
+        //void print_popolazione ();
+        //double get_distance ( vec cromosoma, char geometry );
 };
