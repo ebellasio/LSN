@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <armadillo>
+#include <fstream>
 
 using namespace std;
 using namespace arma;
@@ -10,12 +11,16 @@ using namespace arma;
 vector fitness; //vettore delle distanze
 
 //CLASSE CROMOSOMA
-//Costruttore, il cromosoma con le città in ordine corrisponde al primo individuo
+//Costruttore -> il primo cromosoma ha le città in ordine crescente
 Cromosoma :: Cromosoma (int n){
     this -> _n = n; //numero di geni
-    this -> _cromosoma = vector<int> (_n); //dimensiona il vettore dei geni
-    for (int i = 0; i<_n; i++){
+    this -> _cromosoma.resize(_n); //dimensiona il vettore cromosoma
+    for (int i = 0; i < _n; i++){
         _cromosoma[i] = i+1; //cromosoma 0
+    }
+    if (this->check_passed() == false){
+        cout << "Errore: non sono state rispettare le condizioni sull'ordine delle città" << endl;
+        return;
     }
 }
 
@@ -24,119 +29,139 @@ Cromosoma :: ~Cromosoma (){
     _cromosoma.clear(); //libera la memoria allocata per il vettore dei geni
 }
 
-//Controlla se il cromosoma è composto da geni diversi
-//ovvero passo da ogni città una sola volta
+//Controlla se il cromosoma è composto da geni diversi, ovvero passo da ogni città una sola volta
 //e se la prima città visitata è la 1
 bool Cromosoma :: check_passed (){
-//parto sempre dalla prima città per ridurre la degenerazione
     if (_cromosoma[0] != 1){
-            return false;
+            return false; //la prima città è sempre la 1 per ridurre la degenerazione
     }
-    //controlla se il cromosoma è composto da geni diversi,
-    // ovvero passo da ogni città una sola volta
-    for (int i = 0; i<_n-1; i++){
-        for (int j = i+1; j<_n; j++){
-            if (_cromosoma[i] == _cromosoma[j]){
-                return false;
+    for (int i = 0; i < _n-1; i++){
+        for (int j = i+1; j < _n; j++){
+            if (this->_cromosoma[i] == this->_cromosoma[j]){
+                return false; //devo passare una sola volta da ciascuna città
             }
         }
     }
-    return true;
+    return true; //se arrivo qui le condizioni sono rispettate
 }
 
 //Calcola la fitness del cromosoma, ovvero la distanza tra le città che compaiono nel cromosoma
-//La distanza tra le città vicine é calcolata con la matrice delle distanze
-double Cromosoma :: set_fitness ( char geometry, Random &rnd){
-    this -> _D = distanza_citta(_n, geometry, rnd); //distanza tra le città 
-    double distance = 0.;
-    for (int i = 0; i<_n-1; i++){
+//La distanza tra le città vicine è calcolata con la matrice delle distanze
+void Cromosoma :: fitness (){
+    this->_fitness = 0;
+    for (int i = 0; i < _n-1; i++){
         int j = i+1;
-        distance += _D(i,j);
+        this->_fitness += this->_D(i,j);
     }
-    distance += _D(_n-1, 0); //aggiungo la distanza tra l'ultima città e la prima
-    return distance;
-}
-
-//Mutazione che scambia due città del cromosoma scelte in modo casuale
-void Cromosoma :: mutazione_permutazione( Random &rnd){
-    double r = rnd.Rannyu(2., (double)_n);
-    double s = rnd.Rannyu(2., (double)_n);
-    int i = 0;
-    int j = 0;
-    if ((r-(int)r)<0.5){
-        i = (int)r;
-    } else{
-        i = (int)r+1;
-    }
-    if ((s-(int)s)<0.5){
-        j = (int)s;
-    } else{
-        j = (int)s+1;
-    }
-    //scambio i e j
-    int temp = _cromosoma[i];
-    _cromosoma[i] = _cromosoma[j];
-    _cromosoma[j] = temp;
-    return;
+    this->_fitness += this->_D(_n-1, 0); //aggungo la distanza tra l'ultima città e la prima
 }
 
 //Stampa il cromosoma
-void Cromosoma :: print_cromosoma (){
-    ofstream out;
-    out.open("cromosoma.dat");
-    for (int i = 0; i<_n; i++){
-        out << _cromosoma[i] << " ";
+void Cromosoma :: print_cromosoma (ofstream &out){
+    for (int i = 0; i < this->_n; i++){
+            out << this->_cromosoma[i] << " ";
     }
-    out << endl;
-    out.close();
-    return;
 }
 
+//stampa la fitness
+void Cromosoma :: print_fitness (ofstream &out){
+    out << this->_fitness << endl;
+}
+
+//Mutazione che scambia due città del cromosoma scelte in modo casuale
+//La utilizzo anche per generare la popolazone di partenza
+void Cromosoma :: Permutazione( Random &rnd){
+    int i = (int)rnd.Rannyu(1, _n); // indice tra 1 e _n-1 (escluso 0 e quindi la prima città)
+    int j = (int)rnd.Rannyu(1, _n);
+    while (j == i) { // assicura che i e j siano diversi
+        j = (int)rnd.Rannyu(1, _n);
+    }
+    //scambio i e j
+    int temp = this->_cromosoma[i];
+    this->_cromosoma[i] = this->_cromosoma[j];
+    this->_cromosoma[j] = temp;
+    if (this->check_passed() == false){
+        cout << "Errore dopo la mutazione (Permutazione)" << endl;
+        return;
+    }
+}
+
+//Mutazione che sposta di n posizioni m città consecutive
+void Cromosoma :: Shift (Random &rnd){
+    int l = rnd.Rannyu(1, _n-2); //prima città da spostare
+    int m = rnd.Rannyu(2, _n-l); //dimensione del blocco da spostare
+    int j = rnd.Rannyu(1, _n-l-m+1); //di quanto spostare il blocco
+    for ( int i = 0; i < m; i++ ){
+        int temp = this->_cromosoma[l+1];
+        this->_cromosoma[l+1] = this->_cromosoma[l+j+1];
+        this->_cromosoma[l+j+i] = temp;
+    }
+    if (this->check_passed() == false){ //controllo se il cromosoma rispetta i vincoli
+        cout << "Errore dopo la mutazione (Shift)" << endl;
+        return;
+    }
+}
+
+//Mutazione che scambia due blocchi di m città consecutive
+void Cromosoma :: Scambio (Random &rnd){
+    int max_m = (_n - 1) / 2; //Lunghezza massima del blocco
+    int m = rnd.Rannyu(1, max_m + 1); // m in [1, max_m]
+    int i = rnd.Rannyu(1, _n - 2 * m + 1); // posizione del primo blocco, i in [1, _n-2m]
+    int j = rnd.Rannyu(i + m, _n - m + 1); // posizione del secondo blocco, j in [i+m, _n-m]
+    for (int k = 0; k < m; ++k) {
+        int temp = this->_cromosoma[i+k];
+        this->_cromosoma[i+k] = this->_cromosoma[j+k];
+        this->_cromosoma[j+k] = temp;
+    }
+    if (this->check_passed() == false) {
+        cout << "Errore dopo la mutazione (Scambio blocchi)" << endl;
+        return;
+    }
+}
+
+//Mutazione che inverte l'ordine in cui compaiono m città in un individuo
+void Cromosoma :: Inversione (Random &rnd){
+    int i = rnd.Rannyu(1, _n-2); //posizione del primo elemento da invertire
+    int j = rnd.Rannyu(2, _n-i); //lunghezza del blocco da invertire
+    for ( int n = 0; n < j/2; n++){
+        int m = j-1;
+        int temp = this->_cromosoma[m+i];
+        this->_cromosoma[m+i] = this->_cromosoma[n+i];
+        this->_cromosoma[n+i] = temp;
+        j--;
+    }
+    if (this->check_passed() == false) {
+        cout << "Errore dopo la mutazione (Inversione)" << endl;
+        return;
+    }
+}
 
 ///////////////////////////////////////////////////////////////////
 //CLASSE POPOLAZIONE
 //Costruttore
-Popolazione :: Popolazione(int _n, int _m, mat &D, Random &rnd){
-    this -> _n = _n; //numero di geni
-    this -> _m = _m; //numero di individui in una generazione
-    //MODIFICA IN MODO CHE N E M SIANO LETTI DA FILE DI INPUT
-    this -> _popolazione = vector<Cromosoma> (_m); //dimensiona il vettore della popolazione
+Popolazione :: Popolazione( int n, int m, double p_m, double p_c, mat D, Random &rnd){
+    this->_n = n; //numero di città
+    this->_m = m; //numero di individui in ciascuna generazione
+    this->_p_m = p_m; //probabilità di mutazione
+    this->_p_c = p_c; //probabilità di crossover
 
-}
-
-
-
-
-
-/////////////////SISTEMA E CANCELLA
-//Inizializza la prima genrerazione di m individui costituiti da n geni
-void Popolazione :: initialize_population(int _n, int _m, char geometry, Random &rnd){
-
-    popolazione.set_size(_m); // dimensiona il field a _m individui
-    distances.set_size(_m); // dimensiona il vettore delle distanze a _m individui
-    vec cromosoma(_n); //vettore dei geni
-    
-    //definisco il cromosoma zero con tutti gli interi in ordine da 1 a n
-    for (int i = 0; i<_n; i++){
-        cromosoma(i) = i+1; //cromosoma 0
-    }
-    popolazione(0) = cromosoma; 
-    distances(0) = this -> get_distance(cromosoma, geometry); //calcolo la distanza del cromosoma 0
-
-    //definisco gli altri cromosomi con permutazioni casuali
-    for (int i = 1; i<_m; i++){
-        this -> mutazione_permutazione(cromosoma, _n); //permutazione del cromosoma
-        popolazione(i) = cromosoma; //cromosoma i 
-        if (this -> check_passed(cromosoma, _n) == false){
-            cout << "Cromosoma " << i << " non valido" << endl;
+    this->_popolazione = vector<Cromosoma> (m, Cromosoma(this->_n)); //dimensiona il vettore della popolazione
+    for ( int i = 0; i < m; i++ ){
+        this->_popolazione[i].Set_distances(D); //associo a ciascun individuo la matrice delle distanze
+        for (int j = 0; j < m; j++ ){
+            this->_popolazione[i].Permutazione(rnd); //a partire dall'individuo iniziale creo tutti gli altri con una parmutazione
         }
-        distances(i) = this -> get_distance(cromosoma, geometry); //calcolo la distanza del cromosoma i
+        this->_popolazione[i].fitness(); //a ciascun individuo associo la fitness
     }
-    return;
 }
 
 
-void Popolazione :: print_popolazione (){
+
+
+
+
+///RIPARTO DA QUI
+/*void Popolazione :: print_popolazione (){
     ofstream out;
     out.open("popolazione.dat");
     for (int i = 0; i<_m; i++){
@@ -147,7 +172,7 @@ void Popolazione :: print_popolazione (){
     }
     out.close();
     return;
-}
+}*/
 
 
 
