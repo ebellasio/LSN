@@ -1,5 +1,8 @@
 #include "lib.h"
 #include "popolazione.h"
+#include <iostream>
+#include <fstream>
+#include <armadillo>
 
 using namespace std;
 
@@ -38,13 +41,89 @@ int main(int argc, char *argv[]) {
         cerr << "PROBLEM: Unable to open seed.in" << endl;
     ///////////////////////////////////////////////////////////////
 
-    int città = 34;
-    int individui = 5;
+    int geni = 34; //numero di città
+    int individui = 6;
+    double p_m = 0.1; //probabilità di mutazione
+    double p_c = 0.7; //probabilità di crossover
+    int n_generazioni = 500; //numero di generazioni
+
+    //CIRCONFERENZA
     char geometry = 'C'; // C significa che le città sono disposte sulla circonferenza centrata in (0,0) di lato 1
 
-    mat D = distanze_citta(città, geometry, rnd); // distanza tra le città poste sulla circonferenza
-    //Costruisco la prima generazione di 100 cromosomi
-    /*Popolazione P;
-    P.initialize_population(città, individui, geometry, rnd); // inizializzo la popolazione con 100 cromosomi di 34 geni
-    P.stampa(geni, individui);       */                        //
+    mat dist_C = distanze_citta(geni, geometry, rnd); // distanza tra le città poste sulla circonferenza
+    Popolazione Pop_C(geni, individui, p_m, p_c, dist_C, rnd); //creo la popolazione iniziale
+    Pop_C.Sort(); //ordino la popolazione in ordine crescente di fitness
+
+    ofstream out_pop ("./OUTPUT/popolazione_C.dat"); //output per la popolazione
+    if (!out_pop.is_open()){
+        cout << "Error opening file" << endl;
+        return -1;
+    }
+
+    ofstream out_best ("./OUTPUT/migliore_C.dat"); //output per il migliore individuo
+    if (!out_best.is_open()){
+        cout << "Error opening file" << endl;
+        return -1;
+    }
+
+    out_pop << "#" << " " << "Generazione:" << " " << "Individuo:" << " " << "Fitness:" << endl; //intestazione del file popolazione.dat
+    Pop_C.print_popolazione(out_pop); //stampo la popolazione iniziale
+
+    out_best << "#Generazione:" << " " << "Individuo:" << " " << "Fitness:" << endl; //intestazione del file migliore.dat
+    
+    for ( int i=0; i<n_generazioni; i++ ){
+        Pop_C = Pop_C.NewGenerationCrossover(Pop_C, rnd); //creo la nuova generazione
+    
+        Pop_C.print_popolazione(out_pop); //stampo la nuova generazione
+
+        out_best << i+1 << " ";
+        Pop_C.GetBest().print_cromosoma(out_best); //stampo il migliore individuo per ciascuna generazione
+        out_best << " ";
+        Pop_C.GetBest().print_fitness(out_best); //stampo la fitness del migliore individuo per ciascuna generazione
+        out_best << endl;
+    }
+
+    out_best.close();
+    out_pop.close();
+
+    //QUADRATO
+    geometry = 'Q'; // Q significa che le città sono disposte su un quadrato di lato 1
+
+    mat dist_Q = distanze_citta(geni, geometry, rnd); // distanza tra le città poste sul quadrato
+    Popolazione Pop_Q(geni, individui, p_m, p_c, dist_Q, rnd); //creo la popolazione iniziale
+    Pop_Q.Sort(); //ordino la popolazione in ordine crescente di fitness
+
+    ofstream out_pop_Q ("./OUTPUT/popolazione_Q.dat"); //output per la popolazione
+    if (!out_pop_Q.is_open()){
+        cout << "Error opening file" << endl;
+        return -1;
+    }
+
+    ofstream out_best_Q ("./OUTPUT/migliore_Q.dat"); //output per il migliore individuo
+    if (!out_best_Q.is_open()){
+        cout << "Error opening file" << endl;
+        return -1;
+    }
+
+    out_pop_Q << "#" << " " << "Generazione:" << " " << "Individuo:" << " " << "Fitness:" << endl; //intestazione del file popolazione.dat
+    Pop_Q.print_popolazione(out_pop_Q); //stampo la popolazione iniziale
+
+    out_best_Q << "#Generazione:" << " " << "Individuo:" << " " << "Fitness:" << endl; //intestazione del file migliore.dat
+    
+    for ( int i=0; i<n_generazioni; i++ ){
+        Pop_Q =Pop_Q.NewGenerationCrossover(Pop_Q, rnd); //creo la nuova generazione
+        Pop_Q.print_popolazione(out_pop_Q); //stampo la nuova generazione
+
+        out_best_Q << i+1 << " ";
+        Pop_Q.GetBest().print_cromosoma(out_best_Q); //stampo il migliore individuo per ciascuna generazione
+        out_best_Q << " ";
+        Pop_Q.GetBest().print_fitness(out_best_Q); //stampo la fitness del migliore individuo per ciascuna generazione
+        out_best_Q << endl;
+
+    }
+
+    out_best_Q.close();
+    out_pop_Q.close();
+
+    rnd.SaveSeed();
 }

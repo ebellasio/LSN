@@ -1,11 +1,7 @@
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <string>
-#include <armadillo>
-#include <stdlib.h> //exit
-#include "random.h"
+#pragma once
+
 #include "lib.h"
+#include <vector>
 
 using namespace std;
 using namespace arma;
@@ -19,10 +15,36 @@ class Cromosoma {
         mat _D; //matrice delle distanze tra le città
     public:
         Cromosoma (int _n); //costruttore
-        ~Cromosoma (); //distruttore
+        /*Cromosoma (const Cromosoma& other); //costruttore di copia
+        Cromosoma& operator=(const Cromosoma& other); //operatore di assegnazione */
+
         bool check_passed (); //controlla se il cromosoma è composto da geni diversi e se la prima città visitata è la 1
         void fitness (); //calcola la distanza tra le città che compaiono nel cromosoma
+
+        bool operator<(const Cromosoma& other) const { //definisco l'operatore < per ordinare i cromosomi in base alla fitness
+            return _fitness < other._fitness;
+        }
+
         void Set_distances(mat dist) {this->_D = dist;}; //setta le distanze tra le città
+
+        int GetGene (int i) {
+            if (i < 0 || i >= this->_n) {
+                cout << "Errore: indice fuori dai limiti" << endl;
+                return -1;
+            }
+            return this->_cromosoma[i];
+        };
+
+        void SetGene (int i, int val) {
+            if (i < 0 || i >= this->_n) {
+                cout << "Errore: indice fuori dai limiti" << endl;
+                return;
+            }
+            this->_cromosoma[i] = val;
+        };
+
+        double GetFitness () {return this->_fitness;};
+        int GetN () const {return this->_n;};
 
         void print_cromosoma (ofstream &out); //stampa il cromosoma
         void print_fitness (ofstream &out); //stampa la fitness
@@ -47,6 +69,17 @@ class Popolazione {
 
     public:
         Popolazione(int n, int m, double p_m, double p_c, mat D, Random &rnd);
-        //void print_popolazione ();
-        //double get_distance ( vec cromosoma, char geometry );
+
+        int GetGen() {return this->_index_gen;};
+        void NextGen() {this->_index_gen += 1;};
+
+        void print_popolazione (ofstream &out);
+        void Sort();
+
+        Cromosoma GetBest() {return this->_popolazione[0];};
+
+        int Select(Random &rnd) const; //seleziona un individuo dalla popolazione 
+
+        Popolazione NewGenerationCrossover( Popolazione pop_old, Random &rnd); //crea la nuova generazione
+
 };

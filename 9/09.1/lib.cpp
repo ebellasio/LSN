@@ -1,9 +1,6 @@
 #include "lib.h"
 #include "random.h"
-#include <cmath>
-#include <iostream>
-#include <armadillo>
-#include <fstream>
+#include <algorithm>
 
 
 using namespace std;
