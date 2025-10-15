@@ -80,7 +80,6 @@ int main(int argc, char *argv[]) {
         Pop_C.GetBest().print_cromosoma(out_best); //stampo il migliore individuo per ciascuna generazione
         out_best << " ";
         Pop_C.GetBest().print_fitness(out_best); //stampo la fitness del migliore individuo per ciascuna generazione
-        out_best << endl;
     }
 
     out_best.close();
@@ -118,8 +117,6 @@ int main(int argc, char *argv[]) {
         Pop_Q.GetBest().print_cromosoma(out_best_Q); //stampo il migliore individuo per ciascuna generazione
         out_best_Q << " ";
         Pop_Q.GetBest().print_fitness(out_best_Q); //stampo la fitness del migliore individuo per ciascuna generazione
-        out_best_Q << endl;
-
     }
 
     out_best_Q.close();

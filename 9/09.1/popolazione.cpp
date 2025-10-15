@@ -62,7 +62,7 @@ void Cromosoma :: print_cromosoma (ofstream &out){
 
 //stampa la fitness
 void Cromosoma :: print_fitness (ofstream &out){
-    out << this->_fitness;
+    out << this->_fitness << endl;
 }
 
 //Mutazione che scambia due città del cromosoma scelte in modo casuale
