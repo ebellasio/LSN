@@ -89,8 +89,8 @@ void Cromosoma :: Shift (Random &rnd){
     int m = rnd.Rannyu(2, _n-l); //dimensione del blocco da spostare
     int j = rnd.Rannyu(1, _n-l-m+1); //di quanto spostare il blocco
     for ( int i = 0; i < m; i++ ){
-        int temp = this->_cromosoma[l+1];
-        this->_cromosoma[l+1] = this->_cromosoma[l+j+1];
+        int temp = this->_cromosoma[l+i];
+        this->_cromosoma[l+i] = this->_cromosoma[l+j+i];
         this->_cromosoma[l+j+i] = temp;
     }
     if (this->check_passed() == false){ //controllo se il cromosoma rispetta i vincoli
@@ -102,13 +102,13 @@ void Cromosoma :: Shift (Random &rnd){
 //Mutazione che scambia due blocchi di m città consecutive
 void Cromosoma :: Scambio (Random &rnd){
     int max_m = (_n - 1) / 2; //Lunghezza massima del blocco
-    int m = rnd.Rannyu(1, max_m + 1); // m in [1, max_m]
+    int m = rnd.Rannyu(1, max_m); // lunghezza del blocco da spostare
     int i = rnd.Rannyu(1, _n - 2 * m + 1); // posizione del primo blocco, i in [1, _n-2m]
-    int j = rnd.Rannyu(i + m, _n - m + 1); // posizione del secondo blocco, j in [i+m, _n-m]
+    //int j = rnd.Rannyu(); // posizione del secondo blocco, j in [i+m, _n-m]
     for (int k = 0; k < m; ++k) {
         int temp = this->_cromosoma[i+k];
-        this->_cromosoma[i+k] = this->_cromosoma[j+k];
-        this->_cromosoma[j+k] = temp;
+        this->_cromosoma[i+k] = this->_cromosoma[i+m+k];
+        this->_cromosoma[i+m+k] = temp;
     }
     if (this->check_passed() == false) {
         cout << "Errore dopo la mutazione (Scambio blocchi)" << endl;
@@ -205,7 +205,6 @@ Popolazione Popolazione :: NewGenerationCrossover( Popolazione pop_old, Random &
             }
             //figlio 1
             int j = punto;
-            cout << "punto:" << punto << endl; //DBG
             /*for ( int i = 0; i < this->_n; i++ ){ //completo il cromosoma del figlio1 con i geni mancanti nell'ordine in cui compaiono nel secondo genitore
                 int gene = figlio2.GetGene(i);
                 if ( find(temp1.begin(), temp1.end(), gene) == temp1.end() && j < this->_n ){ //se il gene non è già presente
@@ -226,9 +225,6 @@ Popolazione Popolazione :: NewGenerationCrossover( Popolazione pop_old, Random &
                     j++;
                 };
             }
-            for ( int i = 0; i < this->_n; i++ ){ 
-                cout << "temp1[" << i << "] = " << temp1[i] << ", temp2[" << i << "] = " << temp2[i] << endl; //DBG
-            }
             //figlio 2
             j = punto;
             /*for ( int i = 0; i < this->_n; i++ ){ //completo il cromosoma del figlio2 con i geni mancanti nell'ordine in cui compaiono nel secondo genitore
@@ -241,25 +237,18 @@ Popolazione Popolazione :: NewGenerationCrossover( Popolazione pop_old, Random &
             for ( int i = 0; i < this->_n; i++ ){ 
                 bool found = false;
                 for (int d = 0; d < punto; d++){ //controllo se il gene è già presente
-                    if ( figlio2.GetGene(i) == temp1[d] ){
+                    if ( figlio1.GetGene(i) == temp2[d] ){
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    temp1[j] = figlio2.GetGene(i);
+                    temp2[j] = figlio1.GetGene(i);
                     j++;
                 };
             }
-            for ( int i = 0; i < this->_n; i++ ){ 
-                cout << "temp1[" << i << "] = " << temp1[i] << ", temp2[" << i << "] = " << temp2[i] << endl; //DBG
-            }
-            exit(0); //DBG
-            
 
             for ( int i = 0; i < this->_n; i++ ){
-
-                cout << "temp1[" << i << "] = " << temp1[i] << ", temp2[" << i << "] = " << temp2[i] << endl; //DBG
                 if ( temp1[i] == -1 || temp2[i] == -1 ){
                     cout << "Errore nel crossover: gene mancante" << endl;
                     break;
@@ -281,25 +270,38 @@ Popolazione Popolazione :: NewGenerationCrossover( Popolazione pop_old, Random &
             pop_new._popolazione[k] = figlio1;
             pop_new._popolazione[k+1] = figlio2;
         } 
-    }
     
-    if (rnd.Rannyu() < this->_p_m){ //faccio la mutazione con probabilità p_m
-        for ( int i = 0; i < this->_m; i++ ){ //faccio la mutazione su tutti gli individui della popolazione
+        if (rnd.Rannyu() < this->_p_m){ //faccio la mutazione con probabilità p_m per il primo individuo
             double r = rnd.Rannyu(); //numero casuale tra 0 e 1
             if ( r < 0.25 ){
-                pop_new._popolazione[i].Permutazione(rnd); //mutazione permutazione
+                pop_new._popolazione[k].Permutazione(rnd); //mutazione permutazione
             } else if ( r < 0.5 ){
-                pop_new._popolazione[i].Shift(rnd); //mutazione shift
+                pop_new._popolazione[k].Shift(rnd); //mutazione shift
             } else if ( r < 0.75 ){
-                pop_new._popolazione[i].Scambio(rnd); //mutazione scambio blocchi
+                pop_new._popolazione[k].Scambio(rnd); //mutazione scambio blocchi
             } else {
-                pop_new._popolazione[i].Inversione(rnd); //mutazione inversione
+                pop_new._popolazione[k].Inversione(rnd); //mutazione inversione
             }
         }
+
+        if (rnd.Rannyu() < this->_p_m){ //faccio la mutazione con probabilità p_m per il secondo individuo
+            double r = rnd.Rannyu(); //numero casuale tra 0 e 1
+            if ( r < 0.25 ){
+                pop_new._popolazione[k+1].Permutazione(rnd); //mutazione permutazione
+            } else if ( r < 0.5 ){
+                pop_new._popolazione[k+1].Shift(rnd); //mutazione shift
+            } else if ( r < 0.75 ){
+                pop_new._popolazione[k+1].Scambio(rnd); //mutazione scambio blocchi
+            } else {
+                pop_new._popolazione[k+1].Inversione(rnd); //mutazione inversione
+            }
+        }
+        
+        pop_new._popolazione[k].fitness(); //calcolo la fitness di ciascun individuo
+        pop_new._popolazione[k+1].fitness(); //calcolo la fitness di ciascun individuo
+
     }
-    for ( int i = 0; i < this->_m; i++ ){
-        pop_new._popolazione[i].fitness(); //calcolo la fitness di ciascun individuo
-    }
+
     pop_new.Sort(); //ordino la popolazione in ordine crescente di fitness per facilitare la selezione nella generazione successiva
     return pop_new; //restituisco la nuova generazione
 }

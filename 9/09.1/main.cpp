@@ -42,8 +42,8 @@ int main(int argc, char *argv[]) {
     ///////////////////////////////////////////////////////////////
 
     int geni = 34; //numero di città
-    int individui = 6;
-    double p_m = 0.1; //probabilità di mutazione
+    int individui = 200; //numero di individui/cromosomi in una generazione
+    double p_m = 0.08; //probabilità di mutazione
     double p_c = 0.7; //probabilità di crossover
     int n_generazioni = 500; //numero di generazioni
 
