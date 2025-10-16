@@ -36,7 +36,7 @@ mat distanze_citta ( int n, char schema, Random &rnd){
 
     // Q significa che le città sono distribuite in un quadrato di lato tra -1 e 1
     } else if (schema == 'Q'){
-        ofstream out_Q ("./OUTPUT/citta_Q.dat"); //output per le città sul cerchio
+        ofstream out_Q ("./OUTPUT/citta_Q.dat"); //output per le città sul quadrato
         if (!out_Q.is_open()){
             cout << "Error opening file" << endl;
         }
