@@ -13,31 +13,43 @@ mat distanze_citta ( int n, char schema, Random &rnd, int rank){
 
     mat distanze (n, n); //matrice che contiene le distanze tra due città 
     mat coordinate (n, 2); //matrice che contiene le coordinate (x, y) di ogni città
-    int num;
-   
-        
+    
     // C significa che le città sono disposte sulla circonferenza centrata in (0,0) di lato 1
     if (schema == 'C'){
-        ifstream in ("./INPUT/citta_C.dat"); //leggo le coordinate dal file
-        if (!in.is_open()){
+        ofstream out ("./OUTPUT/citta_C.dat"); //output per le città sul cerchio
+        if (!out.is_open()){
             cout << "Error opening file" << endl;
         }
-        for ( int i = 0; i < n; i++ ){
-            in >> num >> coordinate(i, 0) >> coordinate(i, 1); //leggo le coordinate dal file
+        out << "#" << " " << "X:" << " " << "Y:" << endl; //intestazione del file
+
+        vector<double> ang(n, 0.0); //vettore di angoli di ogni città inizializzato a zero
+        for ( int i = 1; i < n; i++ ){ //parto da uno perchè assegno alla prima città l'angolo zero
+            ang[i] = rnd.Rannyu(0., 2 * M_PI); //considero r=1
         }
-        in.close();
+        sort(ang.begin(), ang.end()); //ordino gli angoli dal più piccolo al piùgrande
+        for ( int i = 0; i < n; i++ ){
+            coordinate(i, 0) = cos(ang[i]);   //coordinata x della i-esima città
+            coordinate(i, 1) = sin(ang[i]);   //coordinata y della i-esima città
+            out << i+1 << " " << coordinate(i, 0) << " " << coordinate(i, 1) << endl;
+        }
+        out.close();
 
     // Q significa che le città sono distribuite in un quadrato di lato tra -1 e 1
     } else if (schema == 'Q'){
-        ifstream in ("./INPUT/citta_Q.dat"); //leggo le coordinate dal file
-        if (!in.is_open()){
+        ofstream out_Q ("./OUTPUT/citta_Q.dat"); //output per le città sul quadrato
+        if (!out_Q.is_open()){
             cout << "Error opening file" << endl;
         }
-        for ( int i = 0; i < n; i++ ){
-            in >> num >> coordinate(i, 0) >> coordinate(i, 1); //leggo le coordinate dal file
+        out_Q << "#" << " " << "X:" << " " << "Y:" << endl; //intestazione del file
+        for (int i = 0; i < n; i++){
+            coordinate(i, 0) = rnd.Rannyu(-1, 1);   //coordinata x della i-esima città
+            coordinate(i, 1) = rnd.Rannyu(-1, 1);   //coordinata y della i-esima città
+        } 
+        for (int i = 0; i < n; i++ ){
+            out_Q << i+1 << " " << coordinate(i, 0) << " " << coordinate(i, 1) << endl;
         }
-        in.close();
-
+        out_Q.close();
+    
     } else if (schema == 'I'){ //Capoluoghi di provincia italiani
         ifstream in ("./INPUT/cap_prov_ita.dat"); //leggo le coordinate dal file
         if (!in.is_open()){

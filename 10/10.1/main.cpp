@@ -16,14 +16,15 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);     // Ottiene il numero totale di processi
     //cout << "Number of processes: " << size << endl;
     
-    //Random rnd;
+    Random rnd;
     // Inizializzazione del generatore di numeri casuali: leggo i semi e i numeri primi dai rispettivi file
-    /*int seed[4];
+    int seed[4];
     int p1, p2;
     ifstream Primes("Primes");
-    if (Primes.is_open())
-    {
-        Primes >> p1 >> p2;
+    if (Primes.is_open()){
+        for ( int i=0; i<=rank; i++){
+            Primes >> p1 >> p2;
+        }
     }
     else
         cerr << "PROBLEM: Unable to open Primes" << endl;
@@ -45,67 +46,7 @@ int main(int argc, char *argv[]) {
         input.close();
     }
     else
-        cerr << "PROBLEM: Unable to open seed.in" << endl;*/
-
-    //Inizializzo il generatore di numeri casuali in modo diverso per ogni processo
-    Random rnd;
-    int seed[4];
-    int p1, p2;
-    // Lettura primi numeri
-    ifstream Primes("Primes");
-    if (Primes.is_open()){
-        Primes >> p1 >> p2;
-        Primes.close();
-    } else {
-        cerr << "PROBLEM: Unable to open Primes" << endl;
-    }
-
-    // Processo 0 legge seed da file e imposta Random
-    if(rank == 0) {
-    ifstream input("seed.in");
-    string property;
-        if (input.is_open()){
-            while (!input.eof()){
-                input >> property;
-                if (property == "RANDOMSEED"){
-                    input >> seed[0] >> seed[1] >> seed[2] >> seed[3];
-                    }
-            }
-            input.close();
-        } else {
-            cerr << "PROBLEM: Unable to open seed.in" << endl;
-        }
-
-        // Inizializza rnd con seed letto
-        rnd.SetRandom(seed, p1, p2);
-
-        // Prepara seed per processo successivo
-        int next_seed[4];
-        for(int i=0; i<4; i++) {
-            next_seed[i] = (seed[i] + 1) % 100000;  // incremento
-        }
-
-        // Invia seed al processo 1 se esiste
-        if(size > 1) {
-            MPI_Send(next_seed, 4, MPI_INT, 1, 0, MPI_COMM_WORLD);
-        } 
-    } else {
-        // Ricevo seed dal processo precedente
-        int recv_seed[4];
-        MPI_Recv(recv_seed, 4, MPI_INT, rank-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-        // Inizializzo rnd con il seed ricevuto
-        rnd.SetRandom(recv_seed, p1, p2);
-
-        // Se non sono l'ultimo processo, preparo seed per il prossimo processo
-        if(rank < size - 1) {
-        int next_seed[4];
-        for(int i=0; i<4; i++) {
-            next_seed[i] = (recv_seed[i] + 1) % 100000;
-            }
-        MPI_Send(next_seed, 4, MPI_INT, rank+1, 0, MPI_COMM_WORLD);
-        }
-    }
+        cerr << "PROBLEM: Unable to open seed.in" << endl;
 
     ///////////////////////////////////////////////////////////////
 
@@ -195,7 +136,7 @@ int main(int argc, char *argv[]) {
     //CAPOLUOGHI DI PROVINCIA ITALIANI
     
     geometry = 'I'; // I significa che le città sono i capoluoghi di provincia italiani
-    geni = 110; //numero di città
+    //geni = 110; //numero di città
 
     mat dist_I = distanze_citta(geni, geometry, rnd, rank); // distanza tra le città poste sul quadrato
     Popolazione Pop_I(geni, individui, p_m, p_c, dist_Q, rnd); //creo la popolazione iniziale
