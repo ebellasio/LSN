@@ -54,6 +54,7 @@ int main(int argc, char *argv[]) {
     double p_m = 0.08; //probabilità di mutazione
     double p_c = 0.7; //probabilità di crossover
     int n_generazioni = 600; //numero di generazioni
+    double p_val = 2.1; //esponente per la selezione degli individui
 
     bool b_migrazione = true; //se true attivo la migrazione tra i processi ogni 20 generazioni
     int n_migrazione = 20; //frequenza di migrazione tra i processi
@@ -64,14 +65,15 @@ int main(int argc, char *argv[]) {
         dout = "./OUTPUT"; //cartella di output per il calcolo parallelo
     } else{
         dout = "./OUTPUT_SERIAL"; //cartella di output per il calcolo seriale
-        individui *= size; //aumento il numero di individui nel caso seriale
+        individui *= 6; //aumento il numero di individui nel caso seriale, scelgo 6 core per il calcolo parallelo
+        cout << "Esecuzione in seriale con " << individui << " individui." << endl;
     }
 
     //CIRCONFERENZA
     char geometry = 'C'; // C significa che le città sono disposte sulla circonferenza centrata in (0,0) di lato 1
 
     mat dist_C = distanze_citta(geni, geometry, rnd, rank); // distanza tra le città poste sulla circonferenza
-    Popolazione Pop_C(geni, individui, p_m, p_c, dist_C, rnd); //creo la popolazione iniziale
+    Popolazione Pop_C(geni, individui, p_m, p_c, p_val, dist_C, rnd); //creo la popolazione iniziale
     Pop_C.Sort(); //ordino la popolazione in ordine crescente di fitness
 
     ofstream out_pop_C (dout + "/popolazione_C_" + to_string(rank) + ".dat"); //output per la popolazione
@@ -108,7 +110,7 @@ int main(int argc, char *argv[]) {
     geometry = 'Q'; // Q significa che le città sono disposte su un quadrato con lato tra -1 e 1
 
     mat dist_Q = distanze_citta(geni, geometry, rnd, rank); // distanza tra le città poste sul quadrato
-    Popolazione Pop_Q(geni, individui, p_m, p_c, dist_Q, rnd); //creo la popolazione iniziale
+    Popolazione Pop_Q(geni, individui, p_m, p_c, p_val, dist_Q, rnd); //creo la popolazione iniziale
     Pop_Q.Sort(); //ordino la popolazione in ordine crescente di fitness
 
     ofstream out_pop_Q (dout + "/popolazione_Q_" + to_string(rank) + ".dat"); //output per la popolazione
@@ -145,11 +147,19 @@ int main(int argc, char *argv[]) {
     
     geometry = 'I'; // I significa che le città sono i capoluoghi di provincia italiani
     geni = 110; //numero di città
-    n_generazioni = 1000; //numero di generazioni nel caso delle province italiane
-    p_m = 0.15; //probabilità di mutazione
+    individui = 1000; //numero di individui/cromosomi in una generazione
+    p_m = 0.1; //probabilità di mutazione
+    p_c = 0.7; //probabilità di crossover
+    n_generazioni = 2000; //numero di generazioni
+    n_migrazione = 20; //frequenza di migrazione tra i processi
+    p_val = 2.0; //esponente per la selezione degli individui
+
+    if (size == 1 ){
+        individui *= 6; //aumento il numero di individui nel caso seriale, scelgo 6 core per il calcolo parallelo
+    }
 
     mat dist_I = distanze_citta(geni, geometry, rnd, rank); // distanza tra le città poste sul quadrato
-    Popolazione Pop_I(geni, individui, p_m, p_c, dist_I, rnd); //creo la popolazione iniziale
+    Popolazione Pop_I(geni, individui, p_m, p_c, p_val, dist_I, rnd); //creo la popolazione iniziale
     Pop_I.Sort(); //ordino la popolazione in ordine crescente di fitness
 
     ofstream out_pop_I (dout + "/popolazione_I_" + to_string(rank) + ".dat"); //output per la popolazione

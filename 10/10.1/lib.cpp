@@ -236,11 +236,12 @@ void Cromosoma :: Inversione (Random &rnd){
 ///////////////////////////////////////////////////////////////////
 //CLASSE POPOLAZIONE
 //Costruttore
-Popolazione :: Popolazione( int n, int m, double p_m, double p_c, mat D, Random &rnd){
+Popolazione :: Popolazione( int n, int m, double p_m, double p_c, double p_val, mat D, Random &rnd){
     this->_n = n; //numero di città
     this->_m = m; //numero di individui in ciascuna generazione
     this->_p_m = p_m; //probabilità di mutazione
     this->_p_c = p_c; //probabilità di crossover
+    this->_p_val = p_val; //esponente per la selezione degli individui
 
     this->_popolazione = vector<Cromosoma> (m, Cromosoma(this->_n)); //dimensiona il vettore della popolazione
     for ( int i = 0; i < m; i++ ){
@@ -269,8 +270,7 @@ void Popolazione :: Sort(){
 //di essere scelto sia più alta per gli individui con fitness più bassa
 int Popolazione :: Select(Random &rnd) const{
     double r = rnd.Rannyu(); //numero casuale tra 0 e 1
-    double p = 2.1; //esponente per la selezione
-    int j = (int)(this->_m * pow(r, p)); //indice dell'individuo selezionato
+    int j = (int)(this->_m * pow(r, this->_p_val)); //indice dell'individuo selezionato
     return j;
 }
 

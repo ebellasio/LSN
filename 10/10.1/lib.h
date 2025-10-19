@@ -84,9 +84,10 @@ class Popolazione {
 
         double _p_m; //probabilità mutazione
         double _p_c; //probabilità crossover
+        double _p_val; //esponente per la selezione degli individui
 
     public:
-        Popolazione(int n, int m, double p_m, double p_c, mat D, Random &rnd);
+        Popolazione(int n, int m, double p_m, double p_c, double p_val, mat D, Random &rnd);
 
         int GetN() {return this->_n;};
         int GetGen() {return this->_index_gen;};
