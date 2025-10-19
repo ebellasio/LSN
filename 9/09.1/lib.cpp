@@ -16,7 +16,7 @@ mat distanze_citta ( int n, char schema, Random &rnd){
    
     // C significa che le città sono disposte sulla circonferenza centrata in (0,0) di lato 1
     if (schema == 'C'){
-        ofstream out ("./OUTPUT/citta_C.dat"); //output per le città sul cerchio
+        ofstream out ("./OUTPUT/citta_C"); //output per le città sul cerchio
         if (!out.is_open()){
             cout << "Error opening file" << endl;
         }

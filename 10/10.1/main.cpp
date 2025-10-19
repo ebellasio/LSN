@@ -12,10 +12,9 @@ int main(int argc, char *argv[]) {
     int rank, size;
     MPI_Init(&argc, &argv);                   // Avvia l'ambiente MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);     // Ottiene l'ID (rank) del processo
-    //cout << "Process " << rank << " started." << endl;
     MPI_Comm_size(MPI_COMM_WORLD, &size);     // Ottiene il numero totale di processi
-    //cout << "Number of processes: " << size << endl;
-    
+    //cout << "Process " << rank << " of " << size << " is running." << endl;
+
     Random rnd;
     // Inizializzazione del generatore di numeri casuali: leggo i semi e i numeri primi dai rispettivi file
     int seed[4];
@@ -59,6 +58,15 @@ int main(int argc, char *argv[]) {
     bool b_migrazione = true; //se true attivo la migrazione tra i processi ogni 20 generazioni
     int n_migrazione = 20; //frequenza di migrazione tra i processi
 
+    string dout;
+
+    if (size > 1){
+        dout = "./OUTPUT"; //cartella di output per il calcolo parallelo
+    } else{
+        dout = "./OUTPUT_SERIAL"; //cartella di output per il calcolo seriale
+        individui *= size; //aumento il numero di individui nel caso seriale
+    }
+
     //CIRCONFERENZA
     char geometry = 'C'; // C significa che le città sono disposte sulla circonferenza centrata in (0,0) di lato 1
 
@@ -66,7 +74,7 @@ int main(int argc, char *argv[]) {
     Popolazione Pop_C(geni, individui, p_m, p_c, dist_C, rnd); //creo la popolazione iniziale
     Pop_C.Sort(); //ordino la popolazione in ordine crescente di fitness
 
-    ofstream out_pop_C ("./OUTPUT/popolazione_C_" + to_string(rank) + ".dat"); //output per la popolazione
+    ofstream out_pop_C (dout + "/popolazione_C_" + to_string(rank) + ".dat"); //output per la popolazione
     if (!out_pop_C.is_open()){
         cout << "Error opening file" << endl;
         return -1;
@@ -85,7 +93,7 @@ int main(int argc, char *argv[]) {
         Pop_C.print_popolazione(out_pop_C); //stampo la nuova generazione
     }
 
-    ofstream out_best_C ("./OUTPUT/migliore_C_" + to_string(rank) + ".dat"); //output per il migliore individuo
+    ofstream out_best_C (dout + "/migliore_C_" + to_string(rank) + ".dat"); //output per il migliore individuo
     if (!out_best_C.is_open()){
         cout << "Error opening file" << endl;
         return -1;
@@ -103,7 +111,7 @@ int main(int argc, char *argv[]) {
     Popolazione Pop_Q(geni, individui, p_m, p_c, dist_Q, rnd); //creo la popolazione iniziale
     Pop_Q.Sort(); //ordino la popolazione in ordine crescente di fitness
 
-    ofstream out_pop_Q ("./OUTPUT/popolazione_Q_" + to_string(rank) + ".dat"); //output per la popolazione
+    ofstream out_pop_Q (dout + "/popolazione_Q_" + to_string(rank) + ".dat"); //output per la popolazione
     if (!out_pop_Q.is_open()){
         cout << "Error opening file" << endl;
         return -1;
@@ -122,7 +130,7 @@ int main(int argc, char *argv[]) {
         Pop_Q.print_popolazione(out_pop_Q); //stampo la nuova generazione
     }
 
-    ofstream out_best_Q ("./OUTPUT/migliore_Q_" + to_string(rank) + ".dat"); //output per il migliore individuo
+    ofstream out_best_Q (dout + "/migliore_Q_" + to_string(rank) + ".dat"); //output per il migliore individuo
     if (!out_best_Q.is_open()){
         cout << "Error opening file" << endl;
         return -1;
@@ -136,13 +144,15 @@ int main(int argc, char *argv[]) {
     //CAPOLUOGHI DI PROVINCIA ITALIANI
     
     geometry = 'I'; // I significa che le città sono i capoluoghi di provincia italiani
-    //geni = 110; //numero di città
+    geni = 110; //numero di città
+    n_generazioni = 1000; //numero di generazioni nel caso delle province italiane
+    p_m = 0.15; //probabilità di mutazione
 
     mat dist_I = distanze_citta(geni, geometry, rnd, rank); // distanza tra le città poste sul quadrato
-    Popolazione Pop_I(geni, individui, p_m, p_c, dist_Q, rnd); //creo la popolazione iniziale
+    Popolazione Pop_I(geni, individui, p_m, p_c, dist_I, rnd); //creo la popolazione iniziale
     Pop_I.Sort(); //ordino la popolazione in ordine crescente di fitness
 
-    ofstream out_pop_I ("./OUTPUT/popolazione_I_" + to_string(rank) + ".dat"); //output per la popolazione
+    ofstream out_pop_I (dout + "/popolazione_I_" + to_string(rank) + ".dat"); //output per la popolazione
     if (!out_pop_I.is_open()){
         cout << "Error opening file" << endl;
         return -1;
@@ -150,8 +160,6 @@ int main(int argc, char *argv[]) {
 
     out_pop_I << "#" << " " << "Generazione:" << " " << "Individuo:" << " " << "Fitness:" << endl; //intestazione del file popolazione.dat
     Pop_I.print_popolazione(out_pop_I); //stampo la popolazione iniziale
-
-    n_generazioni = 1000; //numero di generazioni nel caso delle province italiane
 
     for ( int i=0; i<n_generazioni; i++ ){
         Pop_I = Pop_I.NewGenerationCrossover(Pop_I, rnd); //creo la nuova generazione
@@ -166,7 +174,7 @@ int main(int argc, char *argv[]) {
         Pop_I.print_popolazione(out_pop_I); //stampo la nuova generazione
     }
 
-    ofstream out_best_I ("./OUTPUT/migliore_I_" + to_string(rank) + ".dat"); //output per il migliore individuo
+    ofstream out_best_I (dout + "/migliore_I_" + to_string(rank) + ".dat"); //output per il migliore individuo
     if (!out_best_I.is_open()){
         cout << "Error opening file" << endl;
         return -1;
