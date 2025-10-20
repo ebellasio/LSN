@@ -79,7 +79,7 @@ public:                                             // Function declarations
     void step();                                    // Perform a simulation step
     void block_reset(int blk);                      // Reset block averages
     void measure();                                 // Measure properties of the system
-    void averages(int blk);                         // Compute averages of properties
+    void averages(int blk, bool print, bool print_gofr);                         // Compute averages of properties
     double error(double acc, double acc2, int blk); // Compute error
     void move(int part);                            // Move a particle
     bool metro(int part);                           // Perform Metropolis acceptance-rejection step

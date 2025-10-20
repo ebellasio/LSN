@@ -694,7 +694,7 @@ void System ::measure(){ // Measure properties
     return;
 }
 
-void System ::averages(int blk) {
+void System ::averages(int blk, bool print, bool print_gofr) { // Print results for current block and cumulative averages
 
     ofstream coutf;
     double average, sum_average, sum_ave2;
@@ -715,93 +715,97 @@ void System ::averages(int blk) {
               << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
         coutf.close();
     }
-    // KINETIC ENERGY ////////////////////////////////////////////////////////////
-    if (_measure_kenergy) {
-        coutf.open("../OUTPUT/kinetic_energy.dat", ios::app);
-        average = _average(_index_kenergy);
-        sum_average = _global_av(_index_kenergy);
-        sum_ave2 = _global_av2(_index_kenergy);
-        coutf << setw(12) << blk
-              << setw(12) << average
-              << setw(12) << sum_average / double(blk)
-              << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
-        coutf.close();
-    }
-    // TOTAL ENERGY //////////////////////////////////////////////////////////////
-    if (_measure_tenergy) {
-        coutf.open("../OUTPUT/total_energy.dat", ios::app);
-        average = _average(_index_tenergy);
-        sum_average = _global_av(_index_tenergy);
-        sum_ave2 = _global_av2(_index_tenergy);
-        coutf << setw(12) << blk
-              << setw(12) << average
-              << setw(12) << sum_average / double(blk)
-              << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
-        coutf.close();
-    }
-    // TEMPERATURE ///////////////////////////////////////////////////////////////
-    if (_measure_temp) {
-        coutf.open("../OUTPUT/temperature.dat", ios::app);
-        average = _average(_index_temp);
-        sum_average = _global_av(_index_temp);
-        sum_ave2 = _global_av2(_index_temp);
-        coutf << setw(12) << blk
-              << setw(12) << average
-              << setw(12) << sum_average / double(blk)
-              << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
-        coutf.close();
-    }
-    // PRESSURE //////////////////////////////////////////////////////////////////
-    if (_measure_pressure) {
-        coutf.open("../OUTPUT/pressure.dat", ios::app);
-        average = _average(_index_pressure);
-        sum_average = _global_av(_index_pressure);
-        sum_ave2 = _global_av2(_index_pressure);
-        coutf << setw(12) << blk
-              << setw(12) << average
-              << setw(12) << sum_average / double(blk)
-              << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
-        coutf.close();
-    }
-    // GOFR //////////////////////////////////////////////////////////////////////
-    // TO BE FIXED IN EXERCISE 7
-    if (_measure_gofr) {
-        coutf.open("../OUTPUT/gofr.dat", ios::app);
-        for (int i = 0; i < _n_bins; i++){           //for su tutti i bin
-            average = _average(_index_gofr + i)/_rho/_npart/(4.0*M_PI/3.0*(pow((i+1)*_bin_size,3)-pow(i*_bin_size,3))); // normalizzazione
-            sum_average = _global_av(_index_gofr + i)/_rho/_npart/(4.0*M_PI/3.0*(pow((i+1)*_bin_size,3)-pow(i*_bin_size,3)));
-            sum_ave2 = _global_av2(_index_gofr + i)/pow(_rho*_npart*(4.0*M_PI/3.0*(pow((i+1)*_bin_size,3)-pow(i*_bin_size,3))),2);
+
+    if (print){
+        // KINETIC ENERGY ////////////////////////////////////////////////////////////
+        if (_measure_kenergy) {
+            coutf.open("../OUTPUT/kinetic_energy.dat", ios::app);
+            average = _average(_index_kenergy);
+            sum_average = _global_av(_index_kenergy);
+            sum_ave2 = _global_av2(_index_kenergy);
             coutf << setw(12) << blk
-                  << setw(12) << average
-                  << setw(12) << sum_average / double(blk)
-                  << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
+                << setw(12) << average
+                << setw(12) << sum_average / double(blk)
+                << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
+            coutf.close();
         }
-        coutf << "\n" << endl;
-        coutf.close();
-    }
-    // POFV //////////////////////////////////////////////////////////////////////
-    // TO BE FIXED IN EXERCISE 4
-    if (_measure_pofv){
-        coutf.open("../OUTPUT/pofv.dat", ios::app);
-        for (int i = 0; i < _n_bins_v; i++){
-            average = _average(_index_pofv + i);
-            sum_average = _global_av(_index_pofv + i);
-            sum_ave2 = _global_av2(_index_pofv + i);
+        // TOTAL ENERGY //////////////////////////////////////////////////////////////
+        if (_measure_tenergy) {
+            coutf.open("../OUTPUT/total_energy.dat", ios::app);
+            average = _average(_index_tenergy);
+            sum_average = _global_av(_index_tenergy);
+            sum_ave2 = _global_av2(_index_tenergy);
             coutf << setw(12) << blk
-                  << setw(12) << average
-                  << setw(12) << sum_average / double(blk)
-                  << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
+                << setw(12) << average
+                << setw(12) << sum_average / double(blk)
+                << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
+            coutf.close();
         }
-        coutf << "\n" << endl;
-        coutf.close();
+        // TEMPERATURE ///////////////////////////////////////////////////////////////
+        if (_measure_temp) {
+            coutf.open("../OUTPUT/temperature.dat", ios::app);
+            average = _average(_index_temp);
+            sum_average = _global_av(_index_temp);
+            sum_ave2 = _global_av2(_index_temp);
+            coutf << setw(12) << blk
+                << setw(12) << average
+                << setw(12) << sum_average / double(blk)
+                << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
+            coutf.close();
+        }
+        // PRESSURE //////////////////////////////////////////////////////////////////
+        if (_measure_pressure) {
+            coutf.open("../OUTPUT/pressure.dat", ios::app);
+            average = _average(_index_pressure);
+            sum_average = _global_av(_index_pressure);
+            sum_ave2 = _global_av2(_index_pressure);
+            coutf << setw(12) << blk
+                << setw(12) << average
+                << setw(12) << sum_average / double(blk)
+                << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
+            coutf.close();
+        }
+        // GOFR //////////////////////////////////////////////////////////////////////
+        // TO BE FIXED IN EXERCISE 7
+        if (_measure_gofr && print_gofr){ 
+            coutf.open("../OUTPUT/gofr.dat", ios::app);
+            for (int i = 0; i < _n_bins; i++){           //for su tutti i bin
+                average = _average(_index_gofr + i)/_rho/_npart/(4.0*M_PI/3.0*(pow((i+1)*_bin_size,3)-pow(i*_bin_size,3))); // normalizzazione
+                sum_average = _global_av(_index_gofr + i)/_rho/_npart/(4.0*M_PI/3.0*(pow((i+1)*_bin_size,3)-pow(i*_bin_size,3)));
+                sum_ave2 = _global_av2(_index_gofr + i)/pow(_rho*_npart*(4.0*M_PI/3.0*(pow((i+1)*_bin_size,3)-pow(i*_bin_size,3))),2);
+                coutf << setw(12) << blk
+                    << setw(12) << (i + 0.5) * _bin_size
+                    << setw(12) << average
+                    << setw(12) << sum_average / double(blk)
+                    << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
+            }
+            coutf << "\n" << endl;
+            coutf.close();
+        }
+        // POFV //////////////////////////////////////////////////////////////////////
+        // TO BE FIXED IN EXERCISE 4
+        if (_measure_pofv){
+            coutf.open("../OUTPUT/pofv.dat", ios::app);
+            for (int i = 0; i < _n_bins_v; i++){
+                average = _average(_index_pofv + i);
+                sum_average = _global_av(_index_pofv + i);
+                sum_ave2 = _global_av2(_index_pofv + i);
+                coutf << setw(12) << blk
+                    << setw(12) << average
+                    << setw(12) << sum_average / double(blk)
+                    << setw(12) << this->error(sum_average, sum_ave2, blk) << endl;
+            }
+            coutf << "\n" << endl;
+            coutf.close();
+        }
+        // MAGNETIZATION /////////////////////////////////////////////////////////////
+        // TO BE FIXED IN EXERCISE 6
+        // SPECIFIC HEAT /////////////////////////////////////////////////////////////
+        // TO BE FIXED IN EXERCISE 6
+        // SUSCEPTIBILITY ////////////////////////////////////////////////////////////
+        // TO BE FIXED IN EXERCISE 6
+        // ACCEPTANCE ////////////////////////////////////////////////////////////////
     }
-    // MAGNETIZATION /////////////////////////////////////////////////////////////
-    // TO BE FIXED IN EXERCISE 6
-    // SPECIFIC HEAT /////////////////////////////////////////////////////////////
-    // TO BE FIXED IN EXERCISE 6
-    // SUSCEPTIBILITY ////////////////////////////////////////////////////////////
-    // TO BE FIXED IN EXERCISE 6
-    // ACCEPTANCE ////////////////////////////////////////////////////////////////
     double fraction;
     coutf.open("../OUTPUT/acceptance.dat", ios::app);
     if (_nattempts > 0)

@@ -30,7 +30,13 @@ int main(int argc, char *argv[]) {
                 nconf++;
             }
         }
-        SYS.averages(i + 1);
+        if (i%100 == 0 && SYS.get_nsteps() == 1){
+            SYS.averages(i + 1, true, true);
+        } else if (SYS.get_nsteps() == 1){
+            SYS.averages(i + 1, false, false);
+        } else {
+            SYS.averages(i + 1, true, true);
+        }
         SYS.block_reset(i + 1);
     }
     SYS.finalize();
