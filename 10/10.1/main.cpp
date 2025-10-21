@@ -156,6 +156,7 @@ int main(int argc, char *argv[]) {
 
     if (size == 1 ){
         individui *= 6; //aumento il numero di individui nel caso seriale, scelgo 6 core per il calcolo parallelo
+        cout << "Esecuzione in seriale con " << individui << " individui." << endl;
     }
 
     mat dist_I = distanze_citta(geni, geometry, rnd, rank); // distanza tra le città poste sul quadrato
@@ -176,11 +177,8 @@ int main(int argc, char *argv[]) {
         //if(rank == 0) cout << "I " << Pop_I.GetGen() << endl;
         //Migrazione tra i processi ogni n_migrazione generazioni se c'è più di un processo
         if ( b_migrazione == true && (i+1) % n_migrazione == 0 && size > 1){ 
-            for (int j = 0; j < size; j++) {
-                cout << "Processo " << j << endl;
                 migrazione(Pop_I, rank, size, dist_I, rnd);
             }
-        }
         Pop_I.print_popolazione(out_pop_I); //stampo la nuova generazione
     }
 
