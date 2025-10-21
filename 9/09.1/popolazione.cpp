@@ -118,15 +118,21 @@ void Cromosoma :: Scambio (Random &rnd){
 
 //Mutazione che inverte l'ordine in cui compaiono m città in un individuo
 void Cromosoma :: Inversione (Random &rnd){
-    int i = rnd.Rannyu(1, _n-2); //posizione del primo elemento da invertire
-    int j = rnd.Rannyu(2, _n-i); //lunghezza del blocco da invertire
-    for ( int n = 0; n < j/2; n++){
-        int m = j-1;
-        int temp = this->_cromosoma[m+i];
-        this->_cromosoma[m+i] = this->_cromosoma[n+i];
-        this->_cromosoma[n+i] = temp;
-        j--;
+    int i = rnd.Rannyu(1, _n - 2);       // Inizio del blocco (esclude la prima città)
+    int len = rnd.Rannyu(2, _n - i);     // Lunghezza del blocco da invertire
+
+    int start = i;
+    int end = i + len - 1;
+
+    while (start < end) {
+        int temp = _cromosoma[start];
+        _cromosoma[start] = _cromosoma[end];
+        _cromosoma[end] = temp;
+
+        start++;
+        end--;
     }
+
     if (this->check_passed() == false) {
         cout << "Errore dopo la mutazione (Inversione)" << endl;
         return;
@@ -170,7 +176,7 @@ void Popolazione :: Sort(){
 //di essere scelto sia più alta per gli individui con fitness più bassa
 int Popolazione :: Select(Random &rnd) const{
     double r = rnd.Rannyu(); //numero casuale tra 0 e 1
-    double p = 2.1; //esponente per la selezione
+    double p = 2.0; //esponente per la selezione
     int j = (int)(this->_m * pow(r, p)); //indice dell'individuo selezionato
     return j;
 }
